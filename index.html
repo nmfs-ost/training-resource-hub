@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Roboto', sans-serif; background: #f4f7f9; color: #333; padding: 0; margin: 0; }
+    
+    /* Sticky Header */
+    .sticky-header {
+      position: -webkit-sticky; position: sticky;
+      top: 0; z-index: 1000; background: #f4f7f9; padding: 20px; border-bottom: 2px solid #ddd;
+    }
+    .header-bar { display: flex; flex-direction: column; gap: 15px; max-width: 1200px; margin: 0 auto; }
+    
+    /* Experience Paths */
+    #expPaths { overflow: hidden; transition: max-height 0.3s ease-out, opacity 0.3s ease; max-height: 600px; }
+    #expPaths.minimized { max-height: 0; opacity: 0; margin-bottom: 0; padding: 0; }
+    .experience-paths { display: flex; justify-content: space-around; gap: 15px; margin-bottom: 15px; padding: 10px; background: #fff; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .path-card { flex: 1; text-align: center; padding: 10px; cursor: pointer; border-radius: 10px; border: 2px solid transparent; transition: 0.3s; }
+    .path-card.active { background: #e0f2fe; border-color: #0369a1; }
+    .path-icon { font-size: 24px; display: block; }
+    .path-label { font-weight: bold; font-size: 13px; color: #003366; }
+
+    /* Controls */
+    .controls { display: flex; gap: 15px; align-items: center; background: white; padding: 12px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    .search-box { flex-grow: 2; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
+    .filter-dropdown { flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; background: white; }
+    .toggle-btn { background: #e0f2fe; border: none; color: #0369a1; padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; cursor: pointer; }
+
+    /* Main Split Layout with Sidebar */
+    .main-layout { display: flex; max-width: 1400px; margin: 0 auto; gap: 20px; padding: 20px; }
+    
+    /* Sidebar Layout */
+    .sidebar {
+      width: 280px; flex-shrink: 0; background: white; padding: 20px; border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05); align-self: start; position: -webkit-sticky; position: sticky; top: 160px;
+    }
+    .sidebar-title { font-size: 16px; font-weight: bold; color: #003366; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .roadmap-item { padding: 10px 12px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 500; color: #475569; transition: 0.2s; margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; }
+    .roadmap-item:hover { background: #f1f5f9; color: #0369a1; }
+    .roadmap-item.active { background: #e0f2fe; color: #0369a1; font-weight: bold; }
+
+    /* Grid & Cards */
+    .grid { flex-grow: 1; display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
+    .tag { font-size: 11px; background: #e0f2fe; color: #0369a1; padding: 4px 8px; border-radius: 4px; margin-right: 5px; text-transform: uppercase; font-weight: bold; margin-bottom: 4px; display: inline-block; }
+    .title { font-size: 18px; font-weight: bold; margin: 10px 0; color: #003366; }
+    .desc-text { font-size: 14px; line-height: 1.4; transition: all 0.3s ease; }
+    .desc-text.collapsed { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .keyword-pill { font-size: 10px; background: #f1f5f9; color: #475569; padding: 2px 8px; border-radius: 12px; cursor: pointer; border: 1px solid #e2e8f0; margin: 2px; display: inline-block; }
+    .keyword-pill:hover { background: #0369a1; color: white; }
+    .meta { font-size: 12px; color: #666; margin-top: 15px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+    .btn { background: #003366; color: white; border: none; padding: 10px; border-radius: 6px; cursor: pointer; text-decoration: none; text-align: center; margin-top: 5px; font-weight: bold; font-size: 13px; }
+    .complete-checkbox { margin-top: 10px; font-size: 13px; color: #059669; font-weight: bold; text-align: center; border: 1px solid #059669; padding: 8px; border-radius: 4px; }
+    .roadmap-badge { font-size: 11px; background: #f0fdf4; color: #166534; padding: 4px 8px; border-radius: 4px; font-weight: bold; margin-top: 8px; border: 1px dashed #bbf7d0; display: inline-block; }
+  </style>
+</head>
+<body>
+
+  <div class="sticky-header">
+    <div class="header-bar">
+      <div class="toggle-area" style="text-align: center;">
+        <button class="toggle-btn" onclick="toggleLevels()" id="tglBtn">🔼 Minimize Levels</button>
+      </div>
+
+      <div class="experience-paths" id="expPaths">
+        <div class="path-card active" onclick="filterByExp(this, 'All')">
+          <span class="path-icon">🌊</span><span class="path-label">All Levels</span>
+        </div>
+        <div class="path-card" onclick="filterByExp(this, 'Beginner')">
+          <span class="path-icon">🌱</span><span class="path-label">Beginner</span>
+        </div>
+        <div class="path-card" onclick="filterByExp(this, 'Intermediate')">
+          <span class="path-icon">🚤</span><span class="path-label">Intermediate</span>
+        </div>
+        <div class="path-card" onclick="filterByExp(this, 'Advanced')">
+          <span class="path-icon">🔬</span><span class="path-label">Advanced</span>
+        </div>
+      </div>
+      
+      <div class="controls">
+        <input type="text" id="search" class="search-box" placeholder="🔍 Search modules or keywords..." onkeyup="filter()">
+        <select id="topicFilter" class="filter-dropdown" onchange="filter()">
+          <option value="All">All Topics</option>
+        </select>
+        <select id="formatFilter" class="filter-dropdown" onchange="filter()">
+          <option value="All">All Formats</option>
+        </select>
+        <button id="clearBtn" onclick="clearAllFilters()" class="toggle-btn" style="background: #fee2e2; color: #991b1b; display: none;">✕ Clear</button>
+        <button onclick="toggleCourseworkView()" id="courseworkToggleBtn" style="background:#0369a1; color:white; padding:10px 15px; border:none; border-radius:8px; font-weight:bold; font-size: 12px; cursor:pointer;">📋 My Coursework</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Unified Two-Column Split Layout -->
+  <div class="main-layout">
+    
+    <!-- Sidebar Panel -->
+    <div class="sidebar">
+      <div class="sidebar-title">🗺️ Suggested Roadmaps</div>
+      <div id="roadmap-list">Loading paths...</div>
+    </div>
+
+    <!-- Main Dynamic Cards Display Grid -->
+    <div id="container" class="grid">Loading Fisheries Modules...</div>
+
+  </div>
+
+  <script>
+    let modules = [];
+    let currentExp = 'All'; 
+    let currentRoadmap = 'All'; 
+    let showingCourseworkOnly = false;
+
+    window.onload = () => {
+      // Fetch data JSON file directly from GitHub repository
+      fetch('modules.json')
+        .then(response => response.json())
+        .then(data => {
+          modules = data;
+          
+          // Load user's saved coursework progress from local browser cache
+          const localCoursework = JSON.parse(localStorage.getItem('my_coursework') || '{}');
+          modules.forEach(m => {
+            if (localCoursework[m.title]) {
+              m.status = localCoursework[m.title]; // 'Saved' or 'Completed'
+            }
+          });
+
+          updateTopicDropdown(modules);
+          updateFormatDropdown(modules);
+          updateSidebarRoadmaps(modules);
+          render(modules);
+        })
+        .catch(err => {
+          console.error('Error loading module data:', err);
+          document.getElementById('container').innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #991b1b;">Error loading modules.json file.</div>';
+        });
+    };
+
+    function render(data) {
+      const container = document.getElementById('container');
+      if(data.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #666;">No modules found matching these criteria.</div>';
+        return;
+      }
+      
+      container.innerHTML = data.map(m => {
+        const safeTitle = m.title.replace(/'/g, "\\'");
+        const cleanID = m.title.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+
+        return `
+        <div class="card">
+          <div>
+            <!-- Split Interactive Topic Tags -->
+            ${(m.topic || 'General').split(',').map(t => {
+              const cleanTopic = t.trim();
+              if (!cleanTopic) return '';
+              return `<span class="tag" onclick="filterByTag('${cleanTopic.replace(/'/g, "\\'")}')" style="cursor: pointer;">${cleanTopic}</span>`;
+            }).join('')}
+            
+            <!-- Split Interactive Experience Level Tags -->
+            ${(m.level || 'All').toString().split(',').map(l => {
+              const cleanLevel = l.trim();
+              if (!cleanLevel) return '';
+              return `<span class="tag" onclick="filterByExpFromCard('${cleanLevel}')" style="background:#fef3c7; color:#92400e; cursor:pointer;">${cleanLevel}</span>`;
+            }).join('')}
+          </div>
+          
+          <!-- Conditional Sequence Roadmap Badging -->
+          ${m.roadmap ? `
+            <div>
+              <span class="roadmap-badge">🛣️ ${m.roadmap} ${m.roadmaplevel ? `• Step ${m.roadmaplevel}` : ''}</span>
+            </div>
+          ` : ''}
+
+          <div class="title">${m.title}</div>
+          <div class="desc-container">
+            <div class="desc-text collapsed" id="desc-${cleanID}">${m.description || 'No description.'}</div>
+            ${(m.description || '').length > 150 ? `<button onclick="toggleDesc(this, 'desc-${cleanID}')" style="background:none; border:none; color:#0369a1; font-size:11px; font-weight:bold; cursor:pointer;">Read More...</button>` : ''}
+          </div>
+          <div class="keyword-container" style="margin-top: 10px;">
+            ${(m.keywords || '').split(',').map(k => {
+              const cleanK = k.replace(/Keywords/g, '').trim(); 
+              return cleanK ? `<span class="keyword-pill" onclick="filterByKeyword('${cleanK.replace(/'/g, "\\'")}')">#${cleanK}</span>` : '';
+            }).join('')}
+          </div>
+          <div class="meta">
+            <span style="background: #f1f5f9; padding: 4px 8px; border-radius: 6px; font-weight: bold;">${formatIcon(m.format)} ${m.format}</span>
+            <span>⏱ ${m.duration || 'N/A'}</span>
+          </div>
+          <a href="${m.link}" target="_blank" class="btn">View Module</a>
+          ${m.link2 && m.link2.toString().trim().length > 0 ? `<a href="${m.link2}" target="_blank" class="btn" style="background:#546e7a;">Supplemental Resource</a>` : ''}
+          <div style="margin-top: 10px;">
+            ${m.status === 'Completed' ? `
+              <div class="complete-checkbox" style="background: #ecfdf5; border-color: #059669; color: #059669;">✅ Completed</div>
+              <button onclick="saveToCourseLocally(this, '${safeTitle}', 'Saved')" style="background:none; border:none; color:#64748b; font-size:10px; text-decoration:underline; width:100%; cursor:pointer;">Add again?</button>
+            ` : m.status === 'Saved' ? `
+              <div class="complete-checkbox">📂 In Your Coursework</div>
+              <button onclick="saveToCourseLocally(this, '${safeTitle}', 'Completed')" style="background:none; border:none; color:#059669; font-size:10px; text-decoration:underline; width:100%; cursor:pointer; margin-top:4px;">Mark Complete</button>
+            ` : `
+              <button onclick="saveToCourseLocally(this, '${safeTitle}', 'Saved')" style="margin-top:10px; width:100%; cursor:pointer; background:none; border:1px solid #ccc; padding:8px; border-radius:4px; font-weight:bold;">Add to Coursework</button>
+            `}
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function filter() {
+      const term = document.getElementById('search').value.toLowerCase();
+      const selectedTopic = document.getElementById('topicFilter').value;
+      const selectedFormat = document.getElementById('formatFilter').value;
+      
+      let filtered = modules.filter(m => {
+        const matchesSearch = (m.title || "").toLowerCase().includes(term) || 
+                              (m.description || "").toLowerCase().includes(term) ||
+                              (m.keywords || "").toLowerCase().includes(term);
+        
+        const matchesTopic = (selectedTopic === "All" || (m.topic || "").includes(selectedTopic));
+        const matchesFormat = (selectedFormat === "All" || (m.format || "").includes(selectedFormat));
+        const matchesExp = (currentExp === "All" || (m.level || "").includes(currentExp));
+        const matchesRoadmap = (currentRoadmap === "All" || (m.roadmap || "").trim() === currentRoadmap);
+        const matchesCoursework = !showingCourseworkOnly || (m.status === 'Saved' || m.status === 'Completed');
+        
+        return matchesSearch && matchesTopic && matchesFormat && matchesExp && matchesRoadmap && matchesCoursework;
+      });
+
+      // Step Sort Execution Sequence
+      if (currentRoadmap !== 'All') {
+        filtered.sort((a, b) => {
+          const stepA = parseInt(a.roadmaplevel) || 999;
+          const stepB = parseInt(b.roadmaplevel) || 999;
+          if (stepA !== stepB) return stepA - stepB;
+
+          const layers = { 'Beginner': 1, 'Intermediate': 2, 'Advanced': 3 };
+          return (layers[a.level] || 4) - (layers[b.level] || 4);
+        });
+      }
+      
+      render(filtered);
+      
+      const clearBtn = document.getElementById('clearBtn');
+      if (term || selectedTopic !== "All" || selectedFormat !== "All" || currentExp !== "All" || currentRoadmap !== "All" || showingCourseworkOnly) {
+        clearBtn.style.display = "inline-block";
+      } else {
+        clearBtn.style.display = "none";
+      }
+    }
+
+    function updateSidebarRoadmaps(data) {
+      const sidebarContainer = document.getElementById('roadmap-list');
+      if (!sidebarContainer) return;
+      let paths = {};
+      data.forEach(m => { if (m.roadmap) { const clean = m.roadmap.trim(); paths[clean] = (paths[clean] || 0) + 1; } });
+
+      let html = `<div class="roadmap-item ${currentRoadmap === 'All' ? 'active' : ''}" onclick="filterByRoadmap('All')"><span>🌐 Show All Tracks</span></div>`;
+      Object.keys(paths).sort().forEach(p => {
+        html += `
+          <div class="roadmap-item ${currentRoadmap === p ? 'active' : ''}" onclick="filterByRoadmap('${p.replace(/'/g, "\\'")}')">
+            <span>📍 ${p}</span>
+            <span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 10px;">${paths[p]}</span>
+          </div>`;
+      });
+      sidebarContainer.innerHTML = html;
+    }
+
+    function filterByRoadmap(pathName) {
+      currentRoadmap = pathName;
+      document.querySelectorAll('.roadmap-item').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById('search').value = "";
+      document.getElementById('topicFilter').value = "All";
+      document.getElementById('formatFilter').value = "All";
+      currentExp = 'All';
+      document.querySelectorAll('.path-card').forEach(c => c.classList.remove('active'));
+      document.querySelector('.path-card').classList.add('active');
+      filter();
+    }
+
+    function updateTopicDropdown(data) {
+      const dropdown = document.getElementById('topicFilter');
+      const current = dropdown.value;
+      dropdown.innerHTML = '<option value="All">All Topics</option>';
+      let topics = [];
+      data.forEach(m => { if(m.topic) m.topic.split(',').forEach(t => topics.push(t.trim())); });
+      [...new Set(topics)].sort().forEach(t => {
+        const opt = document.createElement('option'); opt.value = t; opt.textContent = t; dropdown.appendChild(opt);
+      });
+      dropdown.value = topics.includes(current) ? current : "All";
+    }
+
+    function updateFormatDropdown(data) {
+      const dropdown = document.getElementById('formatFilter');
+      const current = dropdown.value;
+      dropdown.innerHTML = '<option value="All">All Formats</option>';
+      let counts = {};
+      data.forEach(m => {
+        if(m.format) {
+          m.format.toString().split(',').forEach(f => {
+            const clean = f.trim();
+            if(clean) counts[clean] = (counts[clean] || 0) + 1;
+          });
+        }
+      });
+      Object.keys(counts).sort().forEach(f => {
+        const opt = document.createElement('option'); opt.value = f; opt.textContent = `${f} (${counts[f]})`; dropdown.appendChild(opt);
+      });
+      dropdown.value = counts[current] ? current : "All";
+    }
+
+    function filterByExp(element, level) {
+      document.querySelectorAll('.path-card').forEach(c => c.classList.remove('active'));
+      element.classList.add('active');
+      currentExp = level;
+      const dataForExp = modules.filter(m => (currentExp === "All" || (m.level || "").includes(currentExp)));
+      updateTopicDropdown(dataForExp);
+      updateFormatDropdown(dataForExp);
+      filter();
+    }
+
+    function filterByExpFromCard(levelName) {
+      let targetHeaderCard = null;
+      document.querySelectorAll('.path-card').forEach(card => {
+        if (card.querySelector('.path-label') && card.querySelector('.path-label').textContent.trim() === levelName) {
+          targetHeaderCard = card;
+        }
+      });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (targetHeaderCard) {
+        filterByExp(targetHeaderCard, levelName);
+      } else {
+        currentExp = levelName;
+        filter();
+      }
+    }
+
+    // Save Coursework into Local Browser Storage
+    function saveToCourseLocally(btn, title, status) {
+      const coursework = JSON.parse(localStorage.getItem('my_coursework') || '{}');
+      coursework[title] = status;
+      localStorage.setItem('my_coursework', JSON.stringify(coursework));
+      
+      const module = modules.find(m => m.title === title);
+      if (module) module.status = status;
+      
+      filter();
+    }
+
+    function toggleCourseworkView() {
+      showingCourseworkOnly = !showingCourseworkOnly;
+      const btn = document.getElementById('courseworkToggleBtn');
+      if (showingCourseworkOnly) {
+        btn.style.background = "#059669";
+        btn.innerHTML = "📖 Show All Modules";
+      } else {
+        btn.style.background = "#0369a1";
+        btn.innerHTML = "📋 My Coursework";
+      }
+      filter();
+    }
+
+    function clearAllFilters() {
+      document.getElementById('search').value = "";
+      document.getElementById('topicFilter').value = "All";
+      document.getElementById('formatFilter').value = "All";
+      currentExp = 'All';
+      currentRoadmap = 'All';
+      showingCourseworkOnly = false;
+      
+      const btn = document.getElementById('courseworkToggleBtn');
+      btn.style.background = "#0369a1";
+      btn.innerHTML = "📋 My Coursework";
+
+      document.querySelectorAll('.path-card').forEach(c => c.classList.remove('active'));
+      document.querySelector('.path-card').classList.add('active');
+      updateTopicDropdown(modules);
+      updateFormatDropdown(modules);
+      updateSidebarRoadmaps(modules);
+      render(modules);
+      document.getElementById('clearBtn').style.display = "none";
+    }
+
+    function toggleLevels() {
+      const p = document.getElementById('expPaths');
+      const b = document.getElementById('tglBtn');
+      p.classList.toggle('minimized');
+      b.innerHTML = p.classList.contains('minimized') ? "🔽 Show Levels" : "🔼 Minimize Levels";
+    }
+
+    function filterByTag(t) { document.getElementById('topicFilter').value = t; filter(); window.scrollTo({top:0, behavior:'smooth'}); }
+    function filterByKeyword(k) { document.getElementById('search').value = k; filter(); window.scrollTo({top:0, behavior:'smooth'}); }
+    function toggleDesc(btn, id) { 
+      const el = document.getElementById(id);
+      el.classList.toggle('collapsed');
+      btn.innerHTML = el.classList.contains('collapsed') ? "Read More..." : "Show Less";
+    }
+    const formatIcon = (f) => {
+      f = (f||'').toLowerCase();
+      if(f.includes('video')) return '📺'; if(f.includes('text') || f.includes('literature')) return '📄'; if(f.includes('presentation')) return '📊';
+      if(f.includes('tutorial')) return '🎓'; if(f.includes('q&a')) return '💬'; return '🛠️';
+    };
+  </script>
+</body>
+</html>
