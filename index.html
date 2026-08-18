@@ -16,6 +16,29 @@
       top: 0; z-index: 1000; background: #f4f7f9; padding: 20px; border-bottom: 2px solid #ddd;
     }
     .header-bar { display: flex; flex-direction: column; gap: 15px; max-width: 1200px; margin: 0 auto; }
+
+    /* Custom Hero Banner */
+    .hero-banner {
+      background-image: url('https://sites.google.com/sites-images-rt/APjpZ00w1laW1ie7SMynxRNNXpExCSRQ3n836OWNkrNoxBLaIY9c3LzO5xtG4gS-_H4hhY5X0RRYhz5LMB7DNjVOLHnyv58wSzvuHdTWRWE411eYSrlgTIt_ww56tK6bvzW0Sa2H4OSWP51e1OxNDJpvKctupQ6MOlWa_t_EJJezTJoHt8IwhFbhzBBzZM5OoJ34m_an=s2048'); /* Make sure this matches your image filename! */
+      background-size: cover;
+      background-position: center;
+      color: white;
+      text-align: center;
+      padding: 60px 20px;
+      margin-bottom: 20px;
+    }
+    .hero-banner h1 { margin: 0; font-size: 32px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+    .hero-banner h2 { margin: 10px 0 0; font-size: 24px; font-weight: 300; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+    
+    .intro-text {
+      max-width: 1000px;
+      margin: 0 auto 30px auto;
+      padding: 0 20px;
+      text-align: center;
+      font-size: 15px;
+      line-height: 1.6;
+      color: #333;
+    }
     
     /* Experience Paths */
     #expPaths { overflow: hidden; transition: max-height 0.3s ease-out, opacity 0.3s ease; max-height: 600px; }
@@ -73,6 +96,15 @@
   </style>
 </head>
 <body>
+  <div class="hero-banner">
+    <h1>National Stock Assessment Enterprise (NSAE)</h1>
+    <h2>Training Library</h2>
+  </div>
+
+  <div class="intro-text">
+    <p><strong>Welcome to the National Stock Assessment Enterprise (NSAE) Training Library!</strong></p>
+    <p>The Library is designed to benefit the NOAA Fisheries stock assessment community by centralizing and archiving the agency's extensive training content. This public platform primarily serves NOAA Fisheries employees, ranging from new hires to experienced staff, by providing structured learning roadmaps and curated technical resources. By organizing materials into guided pathways, the Library will ensure that our personnel can efficiently access and navigate the tools required for onboarding and continuous professional excellence.</p>
+  </div>
 
   <div class="sticky-header">
     <div class="header-bar">
