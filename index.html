@@ -49,6 +49,23 @@
     .path-icon { font-size: 24px; display: block; }
     .path-label { font-weight: bold; font-size: 13px; color: #003366; }
 
+    /* Footer */
+    .site-footer {
+      text-align: center;
+      padding: 30px 20px;
+      margin-top: 40px;
+      color: #475569;
+      font-size: 14px;
+      border-top: 1px solid #ddd;
+    }
+    .site-footer a {
+      color: #0369a1;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .site-footer a:hover {
+      text-decoration: underline;
+    }
     /* Controls */
     .controls { display: flex; flex-wrap: wrap; gap: 15px; align-items: center; background: white; padding: 12px; border-radius: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
     .search-box { flex: 1 1 200px; padding: 10px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
@@ -151,7 +168,9 @@
     <div id="container" class="grid">Loading Fisheries Modules...</div>
 
   </div>
-
+<div class="site-footer">
+    <p>Do you have questions, comments, or suggestions for trainings to add? Contact Abby Furnish at <a href="mailto:abigail.furnish@noaa.gov">abigail.furnish@noaa.gov</a>.</p>
+  </div>
   <script>
     let modules = [];
     let currentExp = 'All'; 
