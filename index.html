@@ -315,15 +315,34 @@
     function updateSidebarRoadmaps(data) {
       const sidebarContainer = document.getElementById('roadmap-list');
       if (!sidebarContainer) return;
+      
+      // Your new Roadmap descriptions mapped to their exact titles
+      const roadmapDescriptions = {
+        "Computational programming": "Increase the efficiency of your programming workflow.",
+        "FIMS contributor": "Learn the skills and information to contribute code and ideas to FIMS.",
+        "FIMS user": "Learn the basics of FIMS, a new modeling framework designed to support next-generation fisheries stock assessment, ecosystem, and socioeconomic modeling.",
+        "Reproducible reporting workflows": "Learn the skills to adopt a semi-automated, reproducible workflow for generating stock assessment reports with the R packages {asar} and {stockplotr}."
+      };
+
       let paths = {};
       data.forEach(m => { if (m.roadmap) { const clean = m.roadmap.trim(); paths[clean] = (paths[clean] || 0) + 1; } });
 
-      let html = `<div class="roadmap-item ${currentRoadmap === 'All' ? 'active' : ''}" onclick="filterByRoadmap('All')"><span>🌐 Show All Tracks</span></div>`;
+      let html = `
+        <div class="roadmap-item ${currentRoadmap === 'All' ? 'active' : ''}" onclick="filterByRoadmap('All')" style="display: block;">
+          <div style="font-weight: bold;">🌐 Show All Tracks</div>
+        </div>`;
+        
       Object.keys(paths).sort().forEach(p => {
+        // Look up the description; if it exists, format it into a neat sub-text block
+        const descHtml = roadmapDescriptions[p] ? `<div style="font-size: 11.5px; color: #64748b; margin-top: 6px; line-height: 1.4; font-weight: normal;">${roadmapDescriptions[p]}</div>` : '';
+        
         html += `
-          <div class="roadmap-item ${currentRoadmap === p ? 'active' : ''}" onclick="filterByRoadmap('${p.replace(/'/g, "\\'")}')">
-            <span>📍 ${p}</span>
-            <span style="font-size: 11px; background: #f1f5f9; padding: 2px 6px; border-radius: 10px;">${paths[p]}</span>
+          <div class="roadmap-item ${currentRoadmap === p ? 'active' : ''}" onclick="filterByRoadmap('${p.replace(/'/g, "\\'")}')" style="display: flex; flex-direction: column; align-items: flex-start;">
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
+              <span style="font-weight: bold;">📍 ${p}</span>
+              <span style="font-size: 11px; background: #cbd5e1; color: #334155; padding: 2px 6px; border-radius: 10px;">${paths[p]}</span>
+            </div>
+            ${descHtml}
           </div>`;
       });
       sidebarContainer.innerHTML = html;
