@@ -215,8 +215,9 @@
       }
       
       container.innerHTML = data.map(m => {
-        const safeTitle = m.title.replace(/'/g, "\\'");
-        const cleanID = m.title.replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
+        // FIX: Handles double-quotes, apostrophes, and hidden line-breaks from Sheets
+        const safeTitle = (m.title || "").replace(/[\n\r]+/g, ' ').replace(/'/g, "\\'").replace(/"/g, "&quot;");
+        const cleanID = (m.title || "").replace(/\s+/g, '').replace(/[^a-zA-Z0-9]/g, '');
 
         return `
         <div class="card">
@@ -257,7 +258,7 @@
           </div>
           <a href="${m.link}" target="_blank" class="btn">View Module</a>
           ${m.link2 && m.link2.toString().trim().length > 0 ? `<a href="${m.link2}" target="_blank" class="btn" style="background:#546e7a;">Supplemental Resource</a>` : ''}
-         <div style="margin-top: 10px;">
+          <div style="margin-top: 10px;">
             ${m.status === 'Completed' ? `
               <div class="complete-checkbox" style="background: #ecfdf5; border-color: #059669; color: #059669;">✅ Completed</div>
               <div style="display: flex; gap: 10px; justify-content: space-between;">
@@ -322,7 +323,6 @@
       const sidebarContainer = document.getElementById('roadmap-list');
       if (!sidebarContainer) return;
       
-      // Your new Roadmap descriptions mapped to their exact titles
       const roadmapDescriptions = {
         "Computational programming": "Increase the efficiency of your programming workflow.",
         "FIMS contributor": "Learn the skills and information to contribute code and ideas to FIMS.",
@@ -339,7 +339,6 @@
         </div>`;
         
       Object.keys(paths).sort().forEach(p => {
-        // Look up the description; if it exists, format it into a neat sub-text block
         const descHtml = roadmapDescriptions[p] ? `<div style="font-size: 11.5px; color: #64748b; margin-top: 6px; line-height: 1.4; font-weight: normal;">${roadmapDescriptions[p]}</div>` : '';
         
         html += `
@@ -424,32 +423,31 @@
       }
     }
 
+    // FIX: Uses forEach to ensure any accidentally duplicated titles are all updated
     function saveToCourseLocally(btn, title, status) {
       const coursework = JSON.parse(localStorage.getItem('my_coursework') || '{}');
       coursework[title] = status;
       localStorage.setItem('my_coursework', JSON.stringify(coursework));
       
-      const module = modules.find(m => m.title === title);
-      if (module) module.status = status;
+      modules.forEach(m => {
+        if (m.title === title) m.status = status;
+      });
       
       filter();
     }
-function removeFromCourse(title) {
-      // 1. Get the current saved list from the browser
+
+    // FIX: Uses forEach to ensure any accidentally duplicated titles are all removed
+    function removeFromCourse(title) {
       const coursework = JSON.parse(localStorage.getItem('my_coursework') || '{}');
-      
-      // 2. Delete this specific module from the list and re-save
       delete coursework[title];
       localStorage.setItem('my_coursework', JSON.stringify(coursework));
       
-      // 3. Clear the status from the live data so the card updates
-      const module = modules.find(m => m.title === title);
-      if (module) delete module.status;
+      modules.forEach(m => {
+        if (m.title === title) delete m.status;
+      });
       
-      // 4. Refresh the view
       filter();
     }
-    
 
     function toggleCourseworkView() {
       showingCourseworkOnly = !showingCourseworkOnly;
