@@ -257,13 +257,19 @@
           </div>
           <a href="${m.link}" target="_blank" class="btn">View Module</a>
           ${m.link2 && m.link2.toString().trim().length > 0 ? `<a href="${m.link2}" target="_blank" class="btn" style="background:#546e7a;">Supplemental Resource</a>` : ''}
-          <div style="margin-top: 10px;">
+         <div style="margin-top: 10px;">
             ${m.status === 'Completed' ? `
               <div class="complete-checkbox" style="background: #ecfdf5; border-color: #059669; color: #059669;">✅ Completed</div>
-              <button onclick="saveToCourseLocally(this, '${safeTitle}', 'Saved')" style="background:none; border:none; color:#64748b; font-size:10px; text-decoration:underline; width:100%; cursor:pointer; padding:5px 0;">Add again?</button>
+              <div style="display: flex; gap: 10px; justify-content: space-between;">
+                <button onclick="saveToCourseLocally(this, '${safeTitle}', 'Saved')" style="background:none; border:none; color:#64748b; font-size:10px; text-decoration:underline; width:100%; cursor:pointer; padding:5px 0;">Mark as In Progress</button>
+                <button onclick="removeFromCourse('${safeTitle}')" style="background:none; border:none; color:#ef4444; font-size:10px; text-decoration:underline; width:100%; cursor:pointer; padding:5px 0;">Remove</button>
+              </div>
             ` : m.status === 'Saved' ? `
               <div class="complete-checkbox">📂 In Your Coursework</div>
-              <button onclick="saveToCourseLocally(this, '${safeTitle}', 'Completed')" style="background:none; border:none; color:#059669; font-size:10px; text-decoration:underline; width:100%; cursor:pointer; margin-top:4px; padding:5px 0;">Mark Complete</button>
+              <div style="display: flex; gap: 10px; justify-content: space-between;">
+                <button onclick="saveToCourseLocally(this, '${safeTitle}', 'Completed')" style="background:none; border:none; color:#059669; font-size:10px; text-decoration:underline; width:100%; cursor:pointer; margin-top:4px; padding:5px 0;">Mark Complete</button>
+                <button onclick="removeFromCourse('${safeTitle}')" style="background:none; border:none; color:#ef4444; font-size:10px; text-decoration:underline; width:100%; cursor:pointer; margin-top:4px; padding:5px 0;">Remove</button>
+              </div>
             ` : `
               <button onclick="saveToCourseLocally(this, '${safeTitle}', 'Saved')" style="margin-top:10px; width:100%; cursor:pointer; background:none; border:1px solid #ccc; padding:8px; border-radius:4px; font-weight:bold;">Add to Coursework</button>
             `}
@@ -428,6 +434,22 @@
       
       filter();
     }
+function removeFromCourse(title) {
+      // 1. Get the current saved list from the browser
+      const coursework = JSON.parse(localStorage.getItem('my_coursework') || '{}');
+      
+      // 2. Delete this specific module from the list and re-save
+      delete coursework[title];
+      localStorage.setItem('my_coursework', JSON.stringify(coursework));
+      
+      // 3. Clear the status from the live data so the card updates
+      const module = modules.find(m => m.title === title);
+      if (module) delete module.status;
+      
+      // 4. Refresh the view
+      filter();
+    }
+    
 
     function toggleCourseworkView() {
       showingCourseworkOnly = !showingCourseworkOnly;
