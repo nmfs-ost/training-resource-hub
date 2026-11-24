@@ -1,0 +1,49 @@
+name: Sync Training Modules
+
+on:
+  schedule:
+    - cron: '0 */12 * * *' # Runs every 12 hours
+  workflow_dispatch:       # Allows manual runs from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Fetch Google Sheet and build modules.json
+        env:
+          SHEET_CSV_URL: "PASTE_YOUR_PUBLISHED_CSV_URL_HERE"
+        run: |
+          python3 - << 'EOF'
+          import csv, io, json, os, urllib.request
+
+          url = os.environ["SHEET_CSV_URL"]
+          req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+          with urllib.request.urlopen(req) as resp:
+              text = resp.read().decode("utf-8-sig")
+
+          reader = csv.DictReader(io.StringIO(text))
+          modules = []
+          for row in reader:
+              clean = {
+                  k.strip().lower().replace(" ", ""): (v.strip() if v else "")
+                  for k, v in row.items() if k
+              }
+              if clean.get("title"):
+                  modules.append(clean)
+
+          with open("modules.json", "w", encoding="utf-8") as f:
+              json.dump(modules, f, indent=2, ensure_ascii=False)
+          EOF
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add modules.json
+          git diff --staged --quiet || (git commit -m "Automated update of training modules from Google Sheets" && git push)
